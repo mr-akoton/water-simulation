@@ -11,7 +11,7 @@
 class	Shader {
 	private:
 		GLuint	_id;
-
+	
 	public:
 		Shader(const std::string vertex, const std::string fragment);
 		~Shader();

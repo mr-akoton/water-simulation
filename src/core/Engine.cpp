@@ -74,13 +74,13 @@ void	Engine::_initGLAD(void) const {
 void Engine::run(void) {
 	Shader	shader(VERTEX_SHADER, FRAGMENT_SHADER);
 	std::vector<Vertex>	vertices = {
-		Vertex{ vec3( -1.0f, -1.0f,  1.0f), vec3(0.0f, 0.0f, 0.0f)},
-		Vertex{ vec3(  1.0f, -1.0f,  1.0f), vec3(0.0f, 0.0f, 1.0f)},
-		Vertex{ vec3(  1.0f,  1.0f,  1.0f), vec3(0.0f, 1.0f, 0.0f)},
-		Vertex{ vec3( -1.0f,  1.0f,  1.0f), vec3(0.0f, 1.0f, 1.0f)},
-		Vertex{ vec3( -1.0f, -1.0f, -1.0f), vec3(1.0f, 0.0f, 0.0f)},
-		Vertex{ vec3(  1.0f, -1.0f, -1.0f), vec3(1.0f, 0.0f, 1.0f)},
-		Vertex{ vec3(  1.0f,  1.0f, -1.0f), vec3(1.0f, 1.0f, 0.0f)},
+		Vertex{ vec3( -1.0f, -1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{ vec3(  1.0f, -1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{ vec3(  1.0f,  1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{ vec3( -1.0f,  1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{ vec3( -1.0f, -1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{ vec3(  1.0f, -1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{ vec3(  1.0f,  1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
 		Vertex{ vec3( -1.0f,  1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
 	};
 	std::vector<GLuint> indices = {
@@ -99,10 +99,12 @@ void Engine::run(void) {
 	EBO ebo(indices);
 	ebo.bind();
 
-	vao.linkAttribute(vbo, 0, 3, GL_FLOAT, sizeof(Vertex),
-										(void*)(0));
-	vao.linkAttribute(vbo, 1, 3, GL_FLOAT, sizeof(Vertex),
-										(void*)(3 * sizeof(float)));
+	vao.linkAttribute(
+		vbo, 0, 3, GL_FLOAT, sizeof(Vertex),(void*)(0)
+	);
+	vao.linkAttribute(
+		vbo, 1, 3, GL_FLOAT, sizeof(Vertex),(void*)(3 * sizeof(float))
+	);
 	
 	vao.unbind();
 	vbo.unbind();
@@ -123,6 +125,7 @@ void Engine::run(void) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.updateMatrix(45, 0.1f, 1000.0f);
+		camera.handleInput(window, _deltaTime);
 		model = rotate(model, _deltaTime, rotation);
 
 		vao.bind();

@@ -46,10 +46,10 @@ EXT_FILE	:= imgui/imgui_draw.cpp \
 			   imgui/imgui.cpp \
 			   stb/stb_image.cpp
 
-SRC_FILE	:= core/objects/EBO.cpp \
+SRC_FILE	:= components/Camera.cpp \
+			   core/objects/EBO.cpp \
 			   core/objects/VAO.cpp \
 			   core/objects/VBO.cpp \
-			   core/Camera.cpp \
 			   core/Engine.cpp \
 			   core/Shader.cpp \
 			   core/Window.cpp \

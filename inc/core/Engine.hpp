@@ -12,7 +12,7 @@
 # include <core/Window.hpp>
 # include <core/Object.hpp>
 # include <core/Shader.hpp>
-# include <core/Camera.hpp>
+# include <components/Camera.hpp>
 
 class	Engine {
 	public:
