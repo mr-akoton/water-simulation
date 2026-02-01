@@ -8,29 +8,15 @@ using namespace glm;
 /*                         CONSTRUCTOR AND DESTRUCTOR                         */
 /* ========================================================================== */
 
-constexpr int					WINDOW_WIDTH = 900;
-constexpr int 				WINDOW_HEIGHT = 600;
+constexpr int					WINDOW_WIDTH = 1280;
+constexpr int 				WINDOW_HEIGHT = 720;
 constexpr const char*	WINDOW_TITLE = "OpenGL - Water";
-constexpr const char*	VERTEX_SHADER = "shader/vertex.glsl";
-constexpr const char*	FRAGMENT_SHADER = "shader/fragment.glsl";
-
-static bool	isFileValid(const std::string path) {
-	std::ifstream	file(path);
-	return file.is_open();
-}
 
 Engine::Engine(void):
-	camera(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(-10.0f, 0.0f, 0.0f)),
-	_lastFrame(0),
-	_deltaTime(0) {
-
-	if (not isFileValid(VERTEX_SHADER)) {
-		std::string error = "Error: failed to open " + std::string(VERTEX_SHADER);
-		throw std::runtime_error(error);
-	} else if (not isFileValid(FRAGMENT_SHADER)) {
-		std::string error = "Error: failed to open " + std::string(FRAGMENT_SHADER);
-		throw std::runtime_error(error);
-	}
+	camera(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0.0f, 10.0f, 0.0f)),
+	_lastFrame(0.0f),
+	_deltaTime(0.0f),
+	_frameCount(0) {
 
 	_initGLFW();
 	if (window.init(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE) == -1) {
@@ -38,12 +24,15 @@ Engine::Engine(void):
 		throw Engine::WindowInitFailedException();
 	}
 	_initGLAD();
+	interface.init(window);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 }
 
 Engine::~Engine() {
 	window.destroy();
+	interface.shutdown();
 	glfwTerminate();
 }
 
@@ -72,69 +61,62 @@ void	Engine::_initGLAD(void) const {
 /* ========================================================================== */
 
 void Engine::run(void) {
-	Shader	shader(VERTEX_SHADER, FRAGMENT_SHADER);
-	std::vector<Vertex>	vertices = {
-		Vertex{ vec3( -1.0f, -1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3(  1.0f, -1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3(  1.0f,  1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3( -1.0f,  1.0f,  1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3( -1.0f, -1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3(  1.0f, -1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3(  1.0f,  1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
-		Vertex{ vec3( -1.0f,  1.0f, -1.0f), vec3(1.0f, 1.0f, 1.0f)},
-	};
-	std::vector<GLuint> indices = {
-		0, 1, 2,  0, 2, 3,
-		1, 5, 6,  1, 6, 2,
-		5, 4, 7,  5, 7, 6,
-		4, 0, 3,  4, 3, 7,
-		3, 2, 6,  3, 6, 7,
-		4, 5, 1,  4, 1, 0,
-	};
+	Water	water(1000, 1000);
+	water.init(vec3(0.172f, 0.3412f, 0.4667f));
 
-	VAO	vao;
-	vao.bind();
-	VBO	vbo(vertices);
-	vbo.bind();
-	EBO ebo(indices);
-	ebo.bind();
+	vec3	lightDirection(0.0f, 1.0f, 0.0f);
+	vec3	lightColor(1.0f, 1.0f, 1.0f);
 
-	vao.linkAttribute(
-		vbo, 0, 3, GL_FLOAT, sizeof(Vertex),(void*)(0)
-	);
-	vao.linkAttribute(
-		vbo, 1, 3, GL_FLOAT, sizeof(Vertex),(void*)(3 * sizeof(float))
-	);
-	
-	vao.unbind();
-	vbo.unbind();
-	ebo.unbind();
-
-	vec3 position(0.0f);
-	vec3 rotation(1.0f, -1.0f, 0.5f);
-	mat4 model(1.0f);
-	model = translate(model, position);
-	model = rotate(model, (float)radians(1.0f), rotation);
+	float	lastTime = glfwGetTime();
+	char	fpsText[100] = "Debug: 0 ms/frame";
+	float	drag = 1.0f;
 
 	while (not window.shouldClose()) {
 		glfwPollEvents();
 		_handleInput();
 		_updateDeltaTime();
 
-		glClearColor(0.3f, 0.04f, 0.6f, 1.0f);
+		_frameCount++;
+		if (glfwGetTime() - lastTime >= 1.0f) {
+			sprintf(fpsText, "Debug: %f ms/frame", 1000.0/double(_frameCount));
+			_frameCount = 0;
+			lastTime += 1.0f;
+		}
+
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera.updateMatrix(45, 0.1f, 1000.0f);
-		camera.handleInput(window, _deltaTime);
-		model = rotate(model, _deltaTime, rotation);
+		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
-		vao.bind();
-	
-		shader.enable();
-		camera.updateShaderMatrix(shader, "u_projection");
-		shader.setMat4("u_model", model);
+		if (not interface.wantCaptureMouse()) {
+			camera.handleInput(window, _deltaTime);
+		}
 
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		water.shader.setFloat("u_drag", drag);
+		water.render(camera, lightDirection, lightColor);
+
+		interface.createFrame();
+		
+		ImGui::Begin("Setting");
+		ImGui::Text(fpsText);
+		ImGui::Text("Water");
+		ImGui::SliderInt("Iteration", &water.iteration, 1, 100, "%d");
+		ImGui::InputFloat("Amplitude", &water.amplitude, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Frequency", &water.frequency, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Speed", &water.speed, 0.0f, 0.0f, "%.5f");
+		ImGui::Text("Water Tuning");
+		ImGui::InputFloat("Iteration Seed", &water.iterationSeed, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Max Peak", &water.maxPeak, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Peak Offset", &water.peakOffset, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Amplitude Scale", &water.amplitudeScale, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Frequency Scale", &water.frequencyScale, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Speed Scale", &water.speedScale, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Drag", &drag, 0.0f, 0.0f, "%.5f");
+		ImGui::Text("Light");
+		ImGui::SliderFloat3("Direction", value_ptr(lightDirection), -1, 1, "%.3f");
+		ImGui::ColorEdit3("Color", value_ptr(lightColor));
+		ImGui::End();
+		interface.render();
 
 		window.update();
 	}
@@ -157,7 +139,7 @@ void	Engine::_handleInput(void) const {
 void	Engine::_updateDeltaTime(void) {
 	float currentFrame = glfwGetTime();
 
-	_deltaTime = currentFrame - _lastFrame;
+	_deltaTime = currentFrame - _lastFrame;	
 	_lastFrame = currentFrame;
 }
 

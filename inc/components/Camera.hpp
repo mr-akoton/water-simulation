@@ -36,11 +36,12 @@ class	Camera {
 
 		void	handleInput(const Window& window, float deltaTime);
 		void	updateMatrix(float fov, float near, float far);
-		void	updateShaderMatrix(const Shader& shader, const std::string uniform);
+		void	updateShaderMatrix(const Shader& shader,
+														 const std::string uniform) const;
 
 	private:
 		void	_handleKeyInput(const Window& window, float deltaTime);
 		void	_handleMouseInput(const Window& window);
 };
 
-#endif /* CAMERA_HPP ======================================================== */
+#endif

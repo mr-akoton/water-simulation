@@ -11,11 +11,11 @@ Camera::Camera(unsigned int width, unsigned int height, vec3 position):
 	width(width),
 	height(height),
 	ratio((float)width / height),
-	speed(10.0f),
+	speed(100.0f),
 	sensitivity(100.0f),
 	up(0.0f, 1.0f, 0.0f),
 	position(position),
-	orientation(1.0f, 0.0f, 0.0f),
+	orientation(0.0f, 0.0f, 1.0f),
 	matrix(1.0f) {
 
 }
@@ -102,6 +102,6 @@ void	Camera::updateMatrix(float fov, float near, float far) {
 }
 
 void	Camera::updateShaderMatrix(const Shader& shader,
-																 const std::string uniform) {
+																 const std::string uniform) const {
 	shader.setMat4(uniform, matrix);
 }

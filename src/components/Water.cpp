@@ -1,0 +1,112 @@
+#include <components/Water.hpp>
+
+constexpr const char*	VERTEX_SHADER = "shader/water-vertex.glsl";
+constexpr const char*	FRAGMENT_SHADER = "shader/water-fragment.glsl";
+
+using namespace glm;
+
+/* ========================================================================== */
+/*                         CONSTRUCTOR AND DESTRUCTOR                         */
+/* ========================================================================== */
+
+Water::Water(unsigned int width,
+						 unsigned int height,
+						 float gridSize,
+						 vec3 position):
+	width(width),
+	height(height),
+	gridSize(gridSize),
+	iteration(45),
+	amplitude(23.0f),
+	frequency(0.009f),
+	speed(1.0f),
+	iterationSeed(1.299f),
+	maxPeak(1.0f),
+	peakOffset(1.0f),
+	amplitudeScale(0.82f),
+	frequencyScale(1.18f),
+	speedScale(1.07f),
+	position(position),
+	model(1.0f),
+	shader(VERTEX_SHADER, FRAGMENT_SHADER) {
+	model = translate(model, position);
+}
+
+Water::~Water() {
+
+}
+
+/* ========================================================================== */
+/*                                    INIT                                    */
+/* ========================================================================== */
+
+void	Water::init(vec3 color) {
+	for (unsigned int z = 0; z < height; z++) {
+		for (unsigned int x = 0; x < width; x++) {
+			Vertex	vertex;
+			vertex.position = vec3((float)x * gridSize, 0.0f, (float)z * gridSize);
+			vertex.color = color;
+			_vertices.push_back(vertex);
+
+			if (x != width - 1 and z != height - 1) {
+				unsigned int	i = (z * width) + x;
+
+				_indices.push_back(i);
+				_indices.push_back(i + width);
+				_indices.push_back(i + 1);
+
+				_indices.push_back(i + width);
+				_indices.push_back(i + width + 1);
+				_indices.push_back(i + 1);
+			}
+		}
+	}
+
+	_vao.bind();
+	VBO	vbo(_vertices);
+	vbo.bind();
+	EBO	ebo(_indices);
+	ebo.bind();
+
+	_vao.linkAttribute(
+		vbo, 0, 3, GL_FLOAT, sizeof(Vertex),(void*)(0)
+	);
+	_vao.linkAttribute(
+		vbo, 1, 3, GL_FLOAT, sizeof(Vertex),(void*)(3 * sizeof(float))
+	);
+
+	_vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
+}
+
+/* ========================================================================== */
+/*                                   UPDATE                                   */
+/* ========================================================================== */
+
+void	Water::render(Camera& camera,
+										const vec3 lightDirection,
+										const vec3 lightColor) const {
+	_vao.bind();
+
+	shader.enable();
+	camera.updateShaderMatrix(shader, "u_projection");
+	shader.setMat4("u_model", model);
+	shader.setMat3("u_imodel", transpose(inverse(mat3(model))));
+	shader.setVec3("u_lightDirection", lightDirection);
+	shader.setVec3("u_lightColor", lightColor);
+	shader.setVec3("u_viewPosition", camera.position);
+	shader.setInt("u_iteration", iteration);
+	shader.setFloat("u_amplitude", amplitude);
+	shader.setFloat("u_frequency", frequency);
+	shader.setFloat("u_speed", speed);
+	shader.setFloat("u_iterationSeed", iterationSeed);
+	shader.setFloat("u_maxPeak", maxPeak);
+	shader.setFloat("u_peakOffset", peakOffset);
+	shader.setFloat("u_amplitudeScale", amplitudeScale);
+	shader.setFloat("u_frequencyScale", frequencyScale);
+	shader.setFloat("u_speedScale", speedScale);
+	shader.setFloat("u_time", glfwGetTime());
+
+	glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0);
+}

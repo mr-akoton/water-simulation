@@ -1,9 +1,9 @@
 #ifndef WINDOW_HPP
 # define WINDOW_HPP
 
+# include <imgui/imgui_impl_glfw.h>
 # include <glad/glad.h>
 # include <GLFW/glfw3.h>
-
 # include <glm/glm.hpp>
 
 class	Window {
@@ -12,8 +12,8 @@ class	Window {
 		unsigned int	height;
 
 	private:
-		GLFWwindow*	_id = nullptr;
-		bool				_isInit = false;
+		GLFWwindow*	_id;
+		bool				_isInit;
 
 	public:
 		Window(void);
@@ -39,10 +39,11 @@ class	Window {
 		void	resetCursor(void) const;
 
 		int		init(unsigned int width, unsigned int	height, const char* title);
+		void	initImGui(void) const;
 		void	destroy(void);
 		void	close(void) const;
 		void	update(void) const;
 
 };
 
-#endif /* WINDOW_HPP ======================================================== */
+#endif

@@ -7,7 +7,7 @@
 
 # include <vector>
 
-struct Vertex {
+struct	Vertex {
 	glm::vec3	position;
 	glm::vec3	color;
 };
@@ -46,6 +46,7 @@ class	VBO {
 	
 	public:
 		VBO(const std::vector<Vertex>& vertices);
+		VBO(const std::vector<glm::vec3>& vertices);
 		~VBO();
 
 		void	bind(void) const; 
@@ -68,4 +69,4 @@ class	EBO {
 		void	unbind(void) const;
 };
 
-#endif /* OBJECT_HPP ======================================================== */
+#endif

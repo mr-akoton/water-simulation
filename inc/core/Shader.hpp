@@ -10,7 +10,9 @@
 
 class	Shader {
 	private:
-		GLuint	_id;
+		GLuint			_id;
+		std::string	_vertexShaderFile;
+		std::string _fragmentShaderFile;
 	
 	public:
 		Shader(const std::string vertex, const std::string fragment);
@@ -34,4 +36,4 @@ class	Shader {
 		
 };
 
-#endif /* SHADER_HPP ======================================================== */
+#endif

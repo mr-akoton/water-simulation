@@ -47,11 +47,14 @@ EXT_FILE	:= imgui/imgui_draw.cpp \
 			   stb/stb_image.cpp
 
 SRC_FILE	:= components/Camera.cpp \
+			   components/Water.cpp \
+			   components/Interface.cpp \
 			   core/objects/EBO.cpp \
 			   core/objects/VAO.cpp \
 			   core/objects/VBO.cpp \
 			   core/Engine.cpp \
 			   core/Shader.cpp \
+			   core/Texture.cpp \
 			   core/Window.cpp \
 			   main.cpp
 

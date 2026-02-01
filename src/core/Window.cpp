@@ -116,6 +116,10 @@ int	Window::init(unsigned int width, unsigned int height, const char* title) {
 	return 0;
 }
 
+void	Window::initImGui(void) const {
+	ImGui_ImplGlfw_InitForOpenGL(_id, true);
+}
+
 /* ========================================================================== */
 /*                                   UPDATE                                   */
 /* ========================================================================== */

@@ -13,15 +13,19 @@
 # include <core/Object.hpp>
 # include <core/Shader.hpp>
 # include <components/Camera.hpp>
+# include <components/Interface.hpp>
+# include <components/Water.hpp>
 
 class	Engine {
 	public:
-		Window	window;
-		Camera	camera;
+		Window		window;
+		Camera		camera;
+		Interface	interface;
 
 	private:
-		float	_lastFrame;
-		float	_deltaTime;
+		float					_lastFrame;
+		float					_deltaTime;
+		unsigned int	_frameCount;
 
 
 	public:
@@ -47,4 +51,4 @@ class	Engine {
 		};
 };
 
-#endif /* ENGINE_HPP ======================================================== */
+#endif

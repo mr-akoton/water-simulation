@@ -1,0 +1,58 @@
+#ifndef WATER_HPP
+# define WATER_HPP
+
+# ifndef GLM_ENABLE_EXPERIMENTAL
+#  define GLM_ENABLE_EXPERIMENTAL
+# endif
+
+# include <glad/glad.h>
+# include <GLFW/glfw3.h>
+# include <glm/glm.hpp>
+# include <glm/gtx/transform.hpp>
+
+# include <core/Object.hpp>
+# include <core/Shader.hpp>
+# include <components/Camera.hpp>
+
+# include <vector>
+
+class Water {
+	public:
+		unsigned int	width;
+		unsigned int	height;
+		float					gridSize;
+		
+		int		iteration;
+		float	amplitude;
+		float	frequency;
+		float	speed;
+		float	iterationSeed;
+		float	maxPeak;
+		float	peakOffset;
+		float	amplitudeScale;
+		float	frequencyScale;
+		float	speedScale;
+
+		glm::vec3	position;
+		glm::mat4	model;
+		Shader		shader;
+
+	private:
+		VAO 								_vao;
+		std::vector<Vertex>	_vertices;
+		std::vector<GLuint>	_indices;
+
+	public:
+		Water(unsigned int width,
+					unsigned int height,
+					float gridSize = 1.0f,
+					glm::vec3 position = glm::vec3(0.0f));
+		~Water();
+	
+		void	init(glm::vec3 color);
+		void	render(Camera& camera,
+								 glm::vec3 lightDirection,
+								 glm::vec3 lightColor) const;
+};
+
+#endif
