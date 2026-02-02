@@ -27,8 +27,6 @@ class Water {
 		float	frequency;
 		float	speed;
 		float	iterationSeed;
-		float	maxPeak;
-		float	peakOffset;
 		float	amplitudeScale;
 		float	frequencyScale;
 		float	speedScale;

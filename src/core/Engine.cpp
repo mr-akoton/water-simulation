@@ -13,7 +13,7 @@ constexpr int 				WINDOW_HEIGHT = 720;
 constexpr const char*	WINDOW_TITLE = "OpenGL - Water";
 
 Engine::Engine(void):
-	camera(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0.0f, 10.0f, 0.0f)),
+	camera(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(250.0f, 150.0f, -100.0f)),
 	_lastFrame(0.0f),
 	_deltaTime(0.0f),
 	_frameCount(0) {
@@ -61,15 +61,17 @@ void	Engine::_initGLAD(void) const {
 /* ========================================================================== */
 
 void Engine::run(void) {
-	Water	water(1000, 1000);
+	Water	water(500, 500);
 	water.init(vec3(0.172f, 0.3412f, 0.4667f));
 
-	vec3	lightDirection(0.0f, 1.0f, 0.0f);
+	vec3	lightDirection(0.2f, 0.8f, 1.0f);
 	vec3	lightColor(1.0f, 1.0f, 1.0f);
 
 	float	lastTime = glfwGetTime();
 	char	fpsText[100] = "Debug: 0 ms/frame";
-	float	drag = 1.0f;
+
+	float	waveRool = 2.0f;
+	float waveSteepness = 0.0f;
 
 	while (not window.shouldClose()) {
 		glfwPollEvents();
@@ -83,7 +85,7 @@ void Engine::run(void) {
 			lastTime += 1.0f;
 		}
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
@@ -92,7 +94,8 @@ void Engine::run(void) {
 			camera.handleInput(window, _deltaTime);
 		}
 
-		water.shader.setFloat("u_drag", drag);
+		water.shader.setFloat("u_waveRool", waveRool);
+		water.shader.setFloat("u_waveSteepness", waveSteepness);
 		water.render(camera, lightDirection, lightColor);
 
 		interface.createFrame();
@@ -101,17 +104,16 @@ void Engine::run(void) {
 		ImGui::Text(fpsText);
 		ImGui::Text("Water");
 		ImGui::SliderInt("Iteration", &water.iteration, 1, 100, "%d");
-		ImGui::InputFloat("Amplitude", &water.amplitude, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Frequency", &water.frequency, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Speed", &water.speed, 0.0f, 0.0f, "%.5f");
-		ImGui::Text("Water Tuning");
-		ImGui::InputFloat("Iteration Seed", &water.iterationSeed, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Max Peak", &water.maxPeak, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Peak Offset", &water.peakOffset, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Amplitude Scale", &water.amplitudeScale, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Frequency Scale", &water.frequencyScale, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Speed Scale", &water.speedScale, 0.0f, 0.0f, "%.5f");
-		ImGui::InputFloat("Drag", &drag, 0.0f, 0.0f, "%.5f");
+		ImGui::InputFloat("Amplitude", &water.amplitude);
+		ImGui::InputFloat("Frequency", &water.frequency);
+		ImGui::InputFloat("Speed", &water.speed);
+		ImGui::Text("Wave Tuning");
+		ImGui::InputFloat("Iteration Seed", &water.iterationSeed);
+		ImGui::InputFloat("Amplitude Scale", &water.amplitudeScale);
+		ImGui::InputFloat("Frequency Scale", &water.frequencyScale);
+		ImGui::InputFloat("Speed Scale", &water.speedScale);
+		ImGui::InputFloat("Roll", &waveRool);
+		ImGui::SliderFloat("Steepness", &waveSteepness, 0.0f, 1.0f, "%.3f");
 		ImGui::Text("Light");
 		ImGui::SliderFloat3("Direction", value_ptr(lightDirection), -1, 1, "%.3f");
 		ImGui::ColorEdit3("Color", value_ptr(lightColor));

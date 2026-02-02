@@ -16,13 +16,11 @@ Water::Water(unsigned int width,
 	width(width),
 	height(height),
 	gridSize(gridSize),
-	iteration(45),
-	amplitude(23.0f),
-	frequency(0.009f),
-	speed(1.0f),
-	iterationSeed(1.299f),
-	maxPeak(1.0f),
-	peakOffset(1.0f),
+	iteration(32),
+	amplitude(8.0f),
+	frequency(0.02f),
+	speed(0.9f),
+	iterationSeed(42.0f),
 	amplitudeScale(0.82f),
 	frequencyScale(1.18f),
 	speedScale(1.07f),
@@ -96,13 +94,11 @@ void	Water::render(Camera& camera,
 	shader.setVec3("u_lightDirection", lightDirection);
 	shader.setVec3("u_lightColor", lightColor);
 	shader.setVec3("u_viewPosition", camera.position);
-	shader.setInt("u_iteration", iteration);
+	shader.setInt("u_waveIteration", iteration);
 	shader.setFloat("u_amplitude", amplitude);
 	shader.setFloat("u_frequency", frequency);
 	shader.setFloat("u_speed", speed);
 	shader.setFloat("u_iterationSeed", iterationSeed);
-	shader.setFloat("u_maxPeak", maxPeak);
-	shader.setFloat("u_peakOffset", peakOffset);
 	shader.setFloat("u_amplitudeScale", amplitudeScale);
 	shader.setFloat("u_frequencyScale", frequencyScale);
 	shader.setFloat("u_speedScale", speedScale);
